@@ -5,15 +5,35 @@ import {
    View,
    TouchableOpacity,
    TextInput,
+   FlatList,
 } from "react-native";
+
+import Tarefa from "./src/Tarefa";
 
 import { FontAwesome } from "@expo/vector-icons";
 
 export default function App() {
    const [tarefa, SetTarefa] = useState("");
+   const [list, setList] = useState([]);
 
    function handleAdd() {
-      alert(tarefa);
+      if (tarefa === "") {
+         return;
+      }
+      const dados = {
+         key: Date.now(),
+         item: tarefa,
+      };
+
+      setList((oldArray) => [dados, ...oldArray]);
+      SetTarefa("");
+   }
+
+   function handleDelete(item) {
+      let filtroItem = list.filter((tarefa) => {
+         return tarefa.item !== item;
+      });
+      setList(filtroItem);
    }
 
    return (
@@ -27,11 +47,19 @@ export default function App() {
                value={tarefa}
                onChangeText={(text) => SetTarefa(text)}
             />
-
             <TouchableOpacity style={styles.buttonAdd} onPress={handleAdd}>
                <FontAwesome name="plus" size={20} color="#FFF" />
             </TouchableOpacity>
          </View>
+
+         <FlatList
+            data={list}
+            keyExtrator={(item) => item.key}
+            renderItem={({ item }) => (
+               <Tarefa data={item} deleteItem={() => handleDelete(item.item)} />
+            )}
+            style={styles.list}
+         />
       </View>
    );
 }
@@ -42,6 +70,7 @@ const styles = StyleSheet.create({
       backgroundColor: "#22272e",
       paddingTop: 28,
    },
+
    title: {
       fontWeight: "bold",
       fontSize: 24,
@@ -73,5 +102,11 @@ const styles = StyleSheet.create({
       alignItems: "center",
       justifyContent: "center",
       borderRadius: 4,
+   },
+   list: {
+      flex: 1,
+      backgroundColor: "#FFF",
+      paddingStart: "4%",
+      paddingEnd: "4%",
    },
 });
